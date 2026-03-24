@@ -40,6 +40,13 @@
         position: relative;
       }
 
+      body.holding-lock,
+      body.holding-lock * {
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
+      }
+
       body::before,
       body::after {
         content: "";
@@ -646,19 +653,24 @@
       }
 
       .response {
-        gap: 18px;
+        width: min(100%, 248px);
+        justify-items: start;
+        text-align: left;
+        gap: 14px;
       }
 
       .response-copy {
-        font-size: clamp(1.24rem, 5vw, 1.5rem);
-        max-width: 13ch;
+        font-size: clamp(1.2rem, 4.7vw, 1.42rem);
+        max-width: 12ch;
+        line-height: 1.5;
       }
 
       .response-actions {
         min-height: 56px;
         display: grid;
-        justify-items: center;
+        justify-items: start;
         align-items: center;
+        width: 100%;
       }
 
       .response-actions.hidden {
@@ -670,6 +682,10 @@
         overflow: hidden;
         isolation: isolate;
         min-width: 168px;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
+        touch-action: none;
         box-shadow:
           0 0 0 0 rgba(214, 186, 255, 0),
           inset 0 1px 0 rgba(255, 255, 255, 0.03);
@@ -681,15 +697,13 @@
         inset: 0;
         width: var(--hold-progress, 0%);
         background:
-          linear-gradient(90deg, rgba(255, 214, 235, 0.22), rgba(180, 194, 255, 0.36)),
-          radial-gradient(circle at right center, rgba(255, 255, 255, 0.2), transparent 26%),
-          repeating-linear-gradient(
-            115deg,
-            rgba(255, 255, 255, 0.08) 0 6px,
-            transparent 6px 18px
-          );
+          linear-gradient(90deg, rgba(255, 221, 238, 0.16), rgba(187, 202, 255, 0.24)),
+          radial-gradient(circle at 76% 50%, rgba(255, 255, 255, 0.14), transparent 28%),
+          radial-gradient(circle at 18% 48%, rgba(255, 213, 232, 0.18), transparent 42%);
         z-index: -1;
-        transition: width 100ms linear;
+        transition:
+          width 100ms linear,
+          opacity 220ms ease;
       }
 
       .hold-button::after {
@@ -706,10 +720,12 @@
       .hold-button.holding {
         transform: scale(0.97);
         border-color: rgba(230, 217, 255, 0.42);
-        filter: brightness(1.08);
+        background: rgba(255, 255, 255, 0.04);
+        filter: brightness(1.06);
         box-shadow:
-          0 0 0 10px rgba(214, 186, 255, 0.04),
-          0 0 28px rgba(182, 204, 255, 0.08);
+          0 0 0 10px rgba(214, 186, 255, 0.035),
+          0 0 30px rgba(182, 204, 255, 0.08),
+          inset 0 1px 0 rgba(255, 255, 255, 0.06);
       }
 
       .hold-button.holding::after {
@@ -719,6 +735,36 @@
 
       .hold-button.complete::before {
         width: 100%;
+      }
+
+      .response-progress {
+        width: min(100%, 108px);
+        height: 1px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.05);
+        overflow: hidden;
+        opacity: 0;
+        transform: translateY(4px);
+        margin-left: 4px;
+        transition:
+          opacity 320ms ease,
+          transform 320ms ease;
+      }
+
+      .response-progress.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .response-progress::before {
+        content: "";
+        display: block;
+        width: var(--response-progress, 0%);
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, rgba(255, 214, 235, 0.56), rgba(180, 194, 255, 0.56));
+        box-shadow: 0 0 10px rgba(214, 186, 255, 0.12);
+        transition: width 2200ms linear;
       }
 
       .final {
@@ -748,23 +794,50 @@
       }
 
       .final-stamp {
+        position: relative;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        padding: 8px 12px;
-        border: 1px solid rgba(230, 217, 255, 0.36);
-        border-radius: 999px;
-        color: rgba(240, 230, 255, 0.8);
-        background: rgba(255, 255, 255, 0.03);
-        font-size: 0.68rem;
-        letter-spacing: 0.18em;
+        min-width: 132px;
+        padding: 10px 16px 9px;
+        border: 1.6px solid rgba(236, 168, 182, 0.24);
+        border-radius: 4px;
+        color: rgba(245, 188, 200, 0.42);
+        background: rgba(255, 214, 228, 0.014);
+        font-size: 0.66rem;
+        font-weight: 650;
+        letter-spacing: 0.22em;
         text-transform: uppercase;
-        transform: rotate(-9deg) scale(0.84);
+        text-indent: 0.22em;
+        transform: rotate(-7deg) scale(0.88);
+        transform-origin: center;
         opacity: 0;
         box-shadow:
-          0 0 0 1px rgba(255, 255, 255, 0.02) inset,
-          0 12px 28px rgba(12, 14, 28, 0.18);
-        margin-bottom: 4px;
+          0 0 0 1px rgba(255, 214, 228, 0.04) inset,
+          0 10px 22px rgba(10, 12, 24, 0.14);
+        margin-bottom: 8px;
+        filter: saturate(0.88);
+      }
+
+      .final-stamp::before,
+      .final-stamp::after {
+        content: "";
+        position: absolute;
+        pointer-events: none;
+      }
+
+      .final-stamp::before {
+        inset: 4px;
+        border: 1px solid rgba(236, 168, 182, 0.18);
+        border-radius: 2px;
+      }
+
+      .final-stamp::after {
+        inset: -4px -3px;
+        border: 1px solid rgba(236, 168, 182, 0.1);
+        border-radius: 5px;
+        transform: rotate(-2.4deg);
+        opacity: 0.82;
       }
 
       .final.active .final-stamp {
@@ -967,17 +1040,17 @@
       @keyframes stamp-in {
         0% {
           opacity: 0;
-          transform: rotate(-14deg) scale(1.25);
+          transform: rotate(-10deg) scale(1.12);
           filter: blur(1px);
         }
         60% {
-          opacity: 0.92;
-          transform: rotate(-8deg) scale(0.97);
+          opacity: 0.7;
+          transform: rotate(-5deg) scale(0.95);
           filter: blur(0);
         }
         100% {
-          opacity: 1;
-          transform: rotate(-10deg) scale(1);
+          opacity: 0.84;
+          transform: rotate(-6deg) scale(1);
           filter: blur(0);
         }
       }
@@ -1067,6 +1140,7 @@
         .button-row.triple button:nth-child(2) {
           min-width: 160px;
         }
+
       }
 
       @media (prefers-reduced-motion: reduce) {
@@ -1109,8 +1183,8 @@
               <span></span>
             </div>
             <p class="eyebrow">one last thing</p>
-            <p class="message">before this becomes legally binding...</p>
-            <p class="message-soft">there's one tiny <span class="accent-word">alien-related clause</span> left.</p>
+            <p class="message">tiny note before you sign this thing...</p>
+            <p class="message-soft">it's just the <span class="accent-word">alien-related clause</span>.</p>
             <div class="button-row">
               <button type="button" data-next="screen-2">ok, what is it</button>
             </div>
@@ -1140,8 +1214,9 @@
             <p class="response-copy response-step" id="response-line-1"></p>
             <p class="response-copy response-step" id="response-line-2"></p>
             <div class="response-actions hidden" id="response-actions">
-              <button type="button" class="hold-button" id="hold-confirm">hold to pinkie promise</button>
+              <button type="button" class="hold-button" id="hold-confirm">right here</button>
             </div>
+            <div class="response-progress" id="response-progress" aria-hidden="true"></div>
           </section>
 
           <section class="panel final" id="final-screen" data-screen>
@@ -1152,7 +1227,7 @@
               <span class="sparkle" style="--angle: 58deg; --travel: -44px; --delay: 60ms"></span>
               <span class="sparkle" style="--angle: 108deg; --travel: -26px; --delay: 120ms"></span>
             </div>
-            <p class="final-stamp">classified</p>
+            <p class="final-stamp">confidential</p>
             <p class="final-title">consider it <span class="accent-word">classified</span></p>
             <p class="support">made specifically for you, Ana. obviously haha)</p>
             <p class="footnote">your secret is safe with me</p>
@@ -1171,11 +1246,17 @@
       const responseLineOne = document.getElementById("response-line-1");
       const responseLineTwo = document.getElementById("response-line-2");
       const responseActions = document.getElementById("response-actions");
+      const responseProgress = document.getElementById("response-progress");
       const holdConfirmButton = document.getElementById("hold-confirm");
       const meteors = document.getElementById("meteors");
       const starfield = document.getElementById("starfield");
       const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
       const holdDuration = 1200;
+      const holdLabels = {
+        idle: "right here",
+        active: "stay here",
+        nearing: "stay here"
+      };
       let flowToken = 0;
       let meteorTimer = null;
       let holdFrame = null;
@@ -1183,6 +1264,13 @@
       let holdStartedAt = 0;
 
       const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
+
+      function clearSelection() {
+        const selection = window.getSelection?.();
+        if (selection && selection.rangeCount > 0) {
+          selection.removeAllRanges();
+        }
+      }
 
       function createStars() {
         const starCount = window.innerWidth <= 480 ? 34 : 46;
@@ -1253,6 +1341,8 @@
         responseLineTwo.textContent = "";
         responseLineOne.classList.remove("visible");
         responseLineTwo.classList.remove("visible");
+        responseProgress.classList.remove("visible");
+        responseProgress.style.setProperty("--response-progress", "0%");
       }
 
       function resetHoldState() {
@@ -1265,6 +1355,8 @@
         responseActions.classList.add("hidden");
         holdConfirmButton.classList.remove("holding", "complete");
         holdConfirmButton.style.setProperty("--hold-progress", "0%");
+        holdConfirmButton.textContent = holdLabels.idle;
+        document.body.classList.remove("holding-lock");
       }
 
       function showResponse(lineOne, lineTwo = "") {
@@ -1290,7 +1382,7 @@
 
         await wait(500);
         if (token !== flowToken) return;
-        responseLineTwo.textContent = "hold to pinkie promise";
+        responseLineTwo.textContent = "just stay here for a second";
         responseLineTwo.classList.add("visible");
         responseActions.classList.remove("hidden");
       }
@@ -1300,13 +1392,19 @@
         resetResponse();
         responseLineOne.textContent = "okay, good";
         responseLineOne.classList.add("visible");
+        responseProgress.classList.add("visible");
 
-        await wait(620);
+        window.requestAnimationFrame(() => {
+          responseProgress.style.setProperty("--response-progress", "34%");
+        });
+
+        await wait(1400);
         if (token !== flowToken) return;
         responseLineTwo.textContent = "promise sealed";
         responseLineTwo.classList.add("visible");
+        responseProgress.style.setProperty("--response-progress", "100%");
 
-        await wait(950);
+        await wait(2900);
         if (token !== flowToken) return;
         showScreen("final-screen");
       }
@@ -1324,11 +1422,13 @@
 
         const progress = Math.min((now - holdStartedAt) / holdDuration, 1);
         holdConfirmButton.style.setProperty("--hold-progress", `${progress * 100}%`);
+        holdConfirmButton.textContent = progress > 0.82 ? holdLabels.nearing : holdLabels.active;
 
         if (progress >= 1) {
           holdActive = false;
           holdConfirmButton.classList.remove("holding");
           holdConfirmButton.classList.add("complete");
+          holdConfirmButton.textContent = holdLabels.nearing;
           finishHoldFlow(flowToken);
           return;
         }
@@ -1339,8 +1439,11 @@
       function startHold() {
         if (holdActive || responseActions.classList.contains("hidden")) return;
         holdActive = true;
+        clearSelection();
         holdConfirmButton.classList.add("holding");
         holdConfirmButton.classList.remove("complete");
+        holdConfirmButton.textContent = holdLabels.active;
+        document.body.classList.add("holding-lock");
         holdStartedAt = performance.now();
         holdFrame = window.requestAnimationFrame(updateHoldProgress);
       }
@@ -1354,6 +1457,9 @@
         }
         holdConfirmButton.classList.remove("holding");
         holdConfirmButton.style.setProperty("--hold-progress", "0%");
+        holdConfirmButton.textContent = holdLabels.idle;
+        document.body.classList.remove("holding-lock");
+        clearSelection();
       }
 
       nextButton.addEventListener("click", () => showScreen("screen-2"));
@@ -1363,8 +1469,16 @@
       trustMaybeButton.addEventListener("click", () => runShortFlow("fair. I'll keep earning it"));
       holdConfirmButton.addEventListener("pointerdown", (event) => {
         event.preventDefault();
+        event.stopPropagation();
         startHold();
       });
+      holdConfirmButton.addEventListener("touchstart", (event) => {
+        event.preventDefault();
+        clearSelection();
+      }, { passive: false });
+      holdConfirmButton.addEventListener("selectstart", (event) => event.preventDefault());
+      holdConfirmButton.addEventListener("contextmenu", (event) => event.preventDefault());
+      holdConfirmButton.addEventListener("dragstart", (event) => event.preventDefault());
       window.addEventListener("pointerup", stopHold);
       window.addEventListener("pointercancel", stopHold);
       holdConfirmButton.addEventListener("pointerleave", stopHold);
