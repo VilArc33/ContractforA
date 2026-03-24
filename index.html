@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>One More Thing</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%230b0f1a'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%23f6f7fb' opacity='.9'/%3E%3Ccircle cx='10' cy='11' r='1.2' fill='%23b4b8ff' opacity='.75'/%3E%3C/svg%3E"
+    />
+    <style>
+      :root {
+        --bg: #0b0f1a;
+        --text: #f5f5f5;
+        --muted: rgba(246, 247, 251, 0.5);
+        --muted-soft: rgba(246, 247, 251, 0.68);
+        --button-border: rgba(255, 255, 255, 0.2);
+        --accent: rgba(214, 186, 255, 0.92);
+        --accent-soft: rgba(169, 192, 255, 0.28);
+        --accent-blush: rgba(255, 198, 224, 0.18);
+        --transition: 520ms cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        min-height: 100%;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        overflow: hidden;
+        position: relative;
+      }
+
+      body::before,
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+      }
+
+      body::before {
+        background:
+          radial-gradient(circle at 50% 46%, rgba(111, 126, 214, 0.12), transparent 24%),
+          radial-gradient(circle at 52% 44%, rgba(214, 186, 255, 0.055), transparent 36%),
+          radial-gradient(circle at 46% 54%, rgba(255, 198, 224, 0.045), transparent 30%),
+          radial-gradient(circle at 38% 50%, rgba(124, 148, 255, 0.06), transparent 22%),
+          radial-gradient(circle at 62% 43%, rgba(232, 198, 255, 0.05), transparent 20%),
+          radial-gradient(circle at 50% 58%, rgba(116, 104, 196, 0.06), transparent 28%),
+          radial-gradient(ellipse at 50% 50%, rgba(97, 114, 186, 0.08), transparent 46%);
+        filter: saturate(1.04);
+      }
+
+      body::after {
+        background-image:
+          radial-gradient(circle at 14% 18%, rgba(255, 255, 255, 0.12) 0 0.9px, transparent 1.6px),
+          radial-gradient(circle at 28% 72%, rgba(255, 255, 255, 0.06) 0 0.9px, transparent 1.5px),
+          radial-gradient(circle at 64% 26%, rgba(255, 255, 255, 0.11) 0 0.8px, transparent 1.5px),
+          radial-gradient(circle at 76% 58%, rgba(255, 255, 255, 0.06) 0 0.9px, transparent 1.6px),
+          radial-gradient(circle at 88% 32%, rgba(255, 255, 255, 0.09) 0 0.95px, transparent 1.6px),
+          radial-gradient(circle at 46% 84%, rgba(255, 255, 255, 0.07) 0 0.9px, transparent 1.6px),
+          radial-gradient(circle at 18% 46%, rgba(255, 255, 255, 0.05) 0 0.8px, transparent 1.5px),
+          radial-gradient(circle at 58% 68%, rgba(255, 255, 255, 0.05) 0 0.85px, transparent 1.5px);
+        background-size: 340px 340px;
+        opacity: 0.22;
+      }
+
+      .app {
+        position: relative;
+        min-height: 100vh;
+        padding: 24px;
+        isolation: isolate;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .stars,
+      .stars::before,
+      .stars::after,
+      .stars__twinkle,
+      .stars__twinkle::before {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+
+      .stars {
+        z-index: 0;
+        overflow: hidden;
+      }
+
+      .meteors {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 36vh;
+        overflow: hidden;
+      }
+
+      .starfield {
+        position: absolute;
+        inset: -6%;
+        overflow: hidden;
+      }
+
+      .star {
+        position: absolute;
+        left: var(--x);
+        top: var(--y);
+        width: var(--size);
+        height: var(--size);
+        border-radius: 999px;
+        background: rgba(255, 250, 255, 0.92);
+        box-shadow:
+          0 0 10px rgba(255, 255, 255, 0.16),
+          0 0 18px rgba(205, 188, 255, 0.1);
+        opacity: 0.16;
+        transform: translate3d(0, 0, 0) scale(0.96);
+        animation:
+          star-drift var(--duration) ease-in-out infinite,
+          star-twinkle var(--twinkle-duration) ease-in-out infinite;
+        animation-delay: var(--delay), var(--twinkle-delay);
+        will-change: transform, opacity;
+      }
+
+      .meteor {
+        position: absolute;
+        left: var(--x);
+        top: var(--y);
+        width: var(--length);
+        height: 2px;
+        border-radius: 999px;
+        background:
+          linear-gradient(90deg, rgba(255, 248, 255, 0.95), rgba(215, 198, 255, 0.32), transparent);
+        box-shadow:
+          0 0 12px rgba(255, 255, 255, 0.24),
+          0 0 28px rgba(205, 188, 255, 0.14);
+        opacity: 0;
+        transform: translate3d(0, 0, 0) rotate(var(--angle));
+        transform-origin: left center;
+        will-change: transform, opacity;
+        animation: meteor-fall var(--meteor-duration) cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+      }
+
+      .stars::before,
+      .stars::after,
+      .stars__twinkle,
+      .stars__twinkle::before {
+        content: "";
+        background-repeat: repeat;
+        opacity: 0.12;
+      }
+
+      .stars::before {
+        background-image:
+          radial-gradient(circle at 24px 28px, rgba(255, 255, 255, 0.34) 0 0.95px, transparent 1.45px),
+          radial-gradient(circle at 96px 72px, rgba(213, 220, 255, 0.14) 0 0.9px, transparent 1.5px),
+          radial-gradient(circle at 164px 146px, rgba(255, 255, 255, 0.2) 0 0.8px, transparent 1.4px),
+          radial-gradient(circle at 250px 50px, rgba(201, 210, 255, 0.14) 0 0.9px, transparent 1.5px),
+          radial-gradient(circle at 324px 164px, rgba(255, 255, 255, 0.12) 0 0.95px, transparent 1.6px),
+          radial-gradient(circle at 132px 192px, rgba(255, 255, 255, 0.1) 0 0.8px, transparent 1.4px);
+        background-size: 332px 206px;
+        animation: drift-up 30s linear infinite;
+      }
+
+      .stars::after {
+        background-image:
+          radial-gradient(circle at 54px 42px, rgba(255, 255, 255, 0.18) 0 0.8px, transparent 1.4px),
+          radial-gradient(circle at 176px 98px, rgba(190, 204, 255, 0.12) 0 0.9px, transparent 1.5px),
+          radial-gradient(circle at 286px 22px, rgba(255, 255, 255, 0.18) 0 0.95px, transparent 1.6px),
+          radial-gradient(circle at 338px 138px, rgba(215, 225, 255, 0.1) 0 0.9px, transparent 1.5px),
+          radial-gradient(circle at 118px 186px, rgba(255, 255, 255, 0.1) 0 0.8px, transparent 1.4px),
+          radial-gradient(circle at 226px 152px, rgba(190, 204, 255, 0.08) 0 0.75px, transparent 1.35px);
+        background-size: 386px 236px;
+        animation: drift-down 36s linear infinite;
+      }
+
+      .stars__twinkle {
+        inset: -8%;
+        background-image:
+          radial-gradient(circle at 42px 58px, rgba(255, 255, 255, 0.22) 0 1.05px, transparent 1.8px),
+          radial-gradient(circle at 148px 26px, rgba(214, 221, 255, 0.16) 0 0.9px, transparent 1.6px),
+          radial-gradient(circle at 224px 120px, rgba(255, 255, 255, 0.18) 0 1px, transparent 1.7px),
+          radial-gradient(circle at 312px 76px, rgba(205, 214, 255, 0.14) 0 0.85px, transparent 1.5px),
+          radial-gradient(circle at 94px 182px, rgba(255, 255, 255, 0.16) 0 0.95px, transparent 1.6px);
+        background-size: 360px 240px;
+        opacity: 0.08;
+        animation: twinkle 7.5s ease-in-out infinite alternate;
+      }
+
+      .stars__twinkle::before {
+        inset: -10%;
+        background-image:
+          radial-gradient(circle at 26px 22px, rgba(255, 255, 255, 0.16) 0 0.8px, transparent 1.45px),
+          radial-gradient(circle at 132px 128px, rgba(214, 221, 255, 0.12) 0 0.75px, transparent 1.4px),
+          radial-gradient(circle at 260px 40px, rgba(255, 255, 255, 0.14) 0 0.85px, transparent 1.5px),
+          radial-gradient(circle at 330px 172px, rgba(255, 255, 255, 0.12) 0 0.8px, transparent 1.45px);
+        background-size: 410px 270px;
+        opacity: 0.06;
+        animation: twinkle-soft 11s ease-in-out infinite;
+      }
+
+      .shell {
+        width: min(100%, 380px);
+        min-height: 420px;
+        padding: 0;
+        position: relative;
+        z-index: 1;
+      }
+
+      .shell::before,
+      .shell::after {
+        content: "";
+        position: absolute;
+        border-radius: 999px;
+        pointer-events: none;
+      }
+
+      .shell::before {
+        width: 8px;
+        height: 8px;
+        top: 10%;
+        right: 12%;
+        background: rgba(255, 214, 235, 0.72);
+        box-shadow:
+          -18px 18px 0 -2px rgba(214, 186, 255, 0.48),
+          12px 34px 0 -3px rgba(184, 208, 255, 0.4);
+        animation: charm-float 6.5s ease-in-out infinite;
+      }
+
+      .shell::after {
+        width: 6px;
+        height: 6px;
+        left: 10%;
+        bottom: 18%;
+        background: rgba(188, 208, 255, 0.5);
+        box-shadow:
+          16px -22px 0 -2px rgba(255, 214, 235, 0.36),
+          28px -4px 0 -3px rgba(214, 186, 255, 0.3);
+        animation: charm-float 7.8s ease-in-out infinite reverse;
+      }
+
+      .stage {
+        width: 100%;
+        min-height: 100%;
+        position: relative;
+        transform: translateY(9vh);
+      }
+
+      .dossier {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      .dossier-grid {
+        position: absolute;
+        inset: 11% 4% 18%;
+        border-radius: 38px;
+        background:
+          linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+        background-size: 28px 28px;
+        mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.9), transparent 88%);
+        opacity: 0.2;
+      }
+
+      .dossier-grid::before {
+        content: "";
+        position: absolute;
+        inset: 10% 7%;
+        border: 1px solid rgba(214, 206, 255, 0.05);
+        border-radius: 34px;
+      }
+
+      .dossier-corners {
+        position: absolute;
+        inset: 10% 5% 18%;
+      }
+
+      .dossier-corners span {
+        position: absolute;
+        width: 24px;
+        height: 24px;
+        border-color: rgba(230, 222, 255, 0.12);
+        border-style: solid;
+      }
+
+      .dossier-corners span:nth-child(1) {
+        top: 0;
+        left: 0;
+        border-width: 1px 0 0 1px;
+        border-top-left-radius: 10px;
+      }
+
+      .dossier-corners span:nth-child(2) {
+        top: 0;
+        right: 0;
+        border-width: 1px 1px 0 0;
+        border-top-right-radius: 10px;
+      }
+
+      .dossier-corners span:nth-child(3) {
+        right: 0;
+        bottom: 0;
+        border-width: 0 1px 1px 0;
+        border-bottom-right-radius: 10px;
+      }
+
+      .dossier-corners span:nth-child(4) {
+        bottom: 0;
+        left: 0;
+        border-width: 0 0 1px 1px;
+        border-bottom-left-radius: 10px;
+      }
+
+      .dossier-seal {
+        position: absolute;
+        left: 50%;
+        top: 24%;
+        width: 230px;
+        height: 230px;
+        transform: translateX(-50%) rotate(-11deg);
+        border-radius: 50%;
+        border: 1px solid rgba(226, 215, 255, 0.08);
+        box-shadow:
+          0 0 0 18px rgba(255, 255, 255, 0.012) inset,
+          0 0 0 42px rgba(255, 255, 255, 0.006) inset;
+        opacity: 0.34;
+      }
+
+      .dossier-seal::before,
+      .dossier-seal::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: 999px;
+      }
+
+      .dossier-seal::before {
+        top: 48px;
+        width: 120px;
+        height: 20px;
+        border-top: 1px solid rgba(230, 217, 255, 0.11);
+        border-bottom: 1px solid rgba(230, 217, 255, 0.07);
+      }
+
+      .dossier-seal::after {
+        bottom: 50px;
+        width: 88px;
+        height: 1px;
+        background: rgba(188, 208, 255, 0.12);
+        box-shadow:
+          0 -12px 0 rgba(255, 214, 235, 0.08),
+          0 12px 0 rgba(255, 214, 235, 0.08);
+      }
+
+      .seal-label {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%) rotate(11deg);
+        color: rgba(232, 224, 255, 0.16);
+        font-size: 0.62rem;
+        letter-spacing: 0.26em;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      .stage::before,
+      .stage::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      .stage::before {
+        top: 5%;
+        width: min(88vw, 420px);
+        height: 360px;
+        transform: translateX(-50%);
+        background:
+          radial-gradient(circle at 48% 42%, rgba(192, 178, 255, 0.16), transparent 22%),
+          radial-gradient(circle at 38% 58%, rgba(115, 142, 255, 0.16), transparent 28%),
+          radial-gradient(circle at 64% 44%, rgba(255, 196, 227, 0.14), transparent 26%),
+          radial-gradient(circle at 50% 56%, rgba(87, 102, 186, 0.18), transparent 44%);
+        filter: blur(42px) saturate(1.08);
+        opacity: 0.96;
+      }
+
+      .stage::after {
+        top: 10%;
+        width: min(84vw, 360px);
+        height: 260px;
+        transform: translateX(-50%);
+        border-radius: 50%;
+        border: 1px solid rgba(214, 206, 255, 0.06);
+        box-shadow:
+          0 0 0 1px rgba(255, 255, 255, 0.012) inset,
+          0 0 36px rgba(128, 142, 232, 0.06);
+        opacity: 0.7;
+      }
+
+      .panel {
+        width: 100%;
+        text-align: center;
+        display: grid;
+        justify-items: center;
+        gap: 28px;
+        opacity: 0;
+        transform: translateY(18px) scale(0.985);
+        pointer-events: none;
+        position: absolute;
+        inset: 0;
+        padding: 0 8px;
+        align-content: center;
+        transition:
+          opacity var(--transition),
+          transform var(--transition);
+      }
+
+      .panel-ornament {
+        position: absolute;
+        pointer-events: none;
+        opacity: 0.72;
+      }
+
+      .panel-ornament span {
+        position: absolute;
+        border-radius: 999px;
+      }
+
+      .intro-sparkles {
+        inset: 0;
+      }
+
+      .intro-sparkles span:nth-child(1) {
+        width: 8px;
+        height: 8px;
+        top: 8%;
+        right: 16%;
+        background: rgba(255, 214, 235, 0.78);
+        box-shadow: 0 0 18px rgba(255, 214, 235, 0.14);
+        animation: charm-float 5.8s ease-in-out infinite;
+      }
+
+      .intro-sparkles span:nth-child(2) {
+        width: 5px;
+        height: 5px;
+        top: 15%;
+        right: 24%;
+        background: rgba(182, 204, 255, 0.72);
+        animation: charm-float 7.2s ease-in-out infinite reverse;
+      }
+
+      .intro-sparkles span:nth-child(3) {
+        width: 6px;
+        height: 6px;
+        top: 58%;
+        left: 10%;
+        background: rgba(216, 188, 255, 0.58);
+        animation: charm-float 6.6s ease-in-out infinite;
+      }
+
+      .choice-orbit {
+        inset: 8% 0 auto;
+        height: 230px;
+        display: grid;
+        place-items: center;
+        z-index: -1;
+      }
+
+      .choice-orbit::before,
+      .choice-orbit::after {
+        content: "";
+        position: absolute;
+        border-radius: 999px;
+        border: 1px solid rgba(225, 214, 255, 0.08);
+        background: radial-gradient(circle, rgba(216, 188, 255, 0.06), transparent 70%);
+      }
+
+      .choice-orbit::before {
+        width: 220px;
+        height: 220px;
+      }
+
+      .choice-orbit::after {
+        width: 168px;
+        height: 168px;
+        border-color: rgba(190, 206, 255, 0.07);
+      }
+
+      .choice-orbit span {
+        position: absolute;
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+        background: rgba(255, 221, 238, 0.72);
+        box-shadow: 0 0 14px rgba(255, 221, 238, 0.12);
+        animation: orbit-drift 9s ease-in-out infinite;
+      }
+
+      .choice-orbit span:nth-child(1) {
+        top: 18px;
+        left: calc(50% + 64px);
+      }
+
+      .choice-orbit span:nth-child(2) {
+        bottom: 34px;
+        left: calc(50% - 82px);
+        width: 5px;
+        height: 5px;
+        background: rgba(182, 204, 255, 0.7);
+        animation-duration: 11s;
+      }
+
+      .panel.active {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        pointer-events: auto;
+      }
+
+      .eyebrow {
+        margin: 0;
+        color: rgba(245, 245, 245, 0.52);
+        font-size: 0.82rem;
+        letter-spacing: 0.22em;
+        font-weight: 500;
+        text-transform: lowercase;
+      }
+
+      h1,
+      h2,
+      p {
+        margin: 0;
+      }
+
+      .message,
+      .response-copy,
+      .final-title {
+        font-weight: 400;
+        line-height: 1.28;
+        letter-spacing: -0.024em;
+      }
+
+      .message,
+      .final-title {
+        font-size: clamp(1.8rem, 7vw, 2.1rem);
+        max-width: 12ch;
+        text-wrap: balance;
+      }
+
+      .message-soft {
+        color: var(--muted-soft);
+        font-size: 0.98rem;
+        line-height: 1.55;
+        max-width: 20ch;
+        letter-spacing: -0.01em;
+        text-wrap: balance;
+      }
+
+      .message-tight {
+        max-width: 11ch;
+      }
+
+      .accent-word {
+        color: rgba(231, 220, 255, 0.94);
+        text-shadow: 0 0 18px rgba(212, 188, 255, 0.08);
+      }
+
+      .button-row {
+        width: auto;
+        display: grid;
+        gap: 12px;
+        margin-top: 10px;
+        justify-items: center;
+      }
+
+      .button-row.triple {
+        width: min(100%, 232px);
+        padding: 12px 12px 10px;
+        border-radius: 28px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.015));
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+      }
+
+      .button-row.triple button:nth-child(2) {
+        min-width: 168px;
+      }
+
+      button {
+        appearance: none;
+        border: 1px solid var(--button-border);
+        background: rgba(255, 255, 255, 0.018);
+        color: var(--text);
+        min-height: 46px;
+        min-width: 152px;
+        width: auto;
+        border-radius: 999px;
+        padding: 12px 22px;
+        font: inherit;
+        font-size: 0.96rem;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+        cursor: pointer;
+        transition:
+          transform 180ms ease,
+          border-color 180ms ease,
+          background-color 180ms ease,
+          filter 180ms ease,
+          opacity 180ms ease;
+      }
+
+      button:hover {
+        transform: scale(1.02);
+        border-color: rgba(230, 217, 255, 0.34);
+        background: rgba(255, 255, 255, 0.032);
+        filter: brightness(1.06);
+      }
+
+      button:focus-visible {
+        outline: none;
+        border-color: rgba(230, 217, 255, 0.4);
+        background: rgba(255, 255, 255, 0.04);
+        filter: brightness(1.08);
+      }
+
+      button:active {
+        transform: scale(0.985);
+      }
+
+      .response {
+        gap: 18px;
+      }
+
+      .response-copy {
+        font-size: clamp(1.24rem, 5vw, 1.5rem);
+        max-width: 13ch;
+      }
+
+      .response-actions {
+        min-height: 56px;
+        display: grid;
+        justify-items: center;
+        align-items: center;
+      }
+
+      .response-actions.hidden {
+        visibility: hidden;
+      }
+
+      .hold-button {
+        position: relative;
+        overflow: hidden;
+        isolation: isolate;
+        min-width: 168px;
+        box-shadow:
+          0 0 0 0 rgba(214, 186, 255, 0),
+          inset 0 1px 0 rgba(255, 255, 255, 0.03);
+      }
+
+      .hold-button::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        width: var(--hold-progress, 0%);
+        background:
+          linear-gradient(90deg, rgba(255, 214, 235, 0.22), rgba(180, 194, 255, 0.36)),
+          radial-gradient(circle at right center, rgba(255, 255, 255, 0.2), transparent 26%),
+          repeating-linear-gradient(
+            115deg,
+            rgba(255, 255, 255, 0.08) 0 6px,
+            transparent 6px 18px
+          );
+        z-index: -1;
+        transition: width 100ms linear;
+      }
+
+      .hold-button::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.12) 42%, transparent 64%);
+        opacity: 0;
+        transform: translateX(-28%);
+        transition: opacity 180ms ease;
+      }
+
+      .hold-button.holding {
+        transform: scale(0.97);
+        border-color: rgba(230, 217, 255, 0.42);
+        filter: brightness(1.08);
+        box-shadow:
+          0 0 0 10px rgba(214, 186, 255, 0.04),
+          0 0 28px rgba(182, 204, 255, 0.08);
+      }
+
+      .hold-button.holding::after {
+        opacity: 1;
+        animation: hold-sheen 1.15s linear infinite;
+      }
+
+      .hold-button.complete::before {
+        width: 100%;
+      }
+
+      .final {
+        gap: 14px;
+        position: relative;
+      }
+
+      .support {
+        color: rgba(245, 245, 245, 0.76);
+        font-size: 0.92rem;
+        line-height: 1.5;
+        max-width: 21ch;
+      }
+
+      .footnote {
+        color: rgba(245, 245, 245, 0.42);
+        font-size: 0.72rem;
+        line-height: 1.5;
+        letter-spacing: 0.04em;
+      }
+
+      .final-tag {
+        color: rgba(228, 212, 255, 0.76);
+        font-size: 0.78rem;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+      }
+
+      .final-stamp {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 12px;
+        border: 1px solid rgba(230, 217, 255, 0.36);
+        border-radius: 999px;
+        color: rgba(240, 230, 255, 0.8);
+        background: rgba(255, 255, 255, 0.03);
+        font-size: 0.68rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        transform: rotate(-9deg) scale(0.84);
+        opacity: 0;
+        box-shadow:
+          0 0 0 1px rgba(255, 255, 255, 0.02) inset,
+          0 12px 28px rgba(12, 14, 28, 0.18);
+        margin-bottom: 4px;
+      }
+
+      .final.active .final-stamp {
+        animation: stamp-in 680ms cubic-bezier(0.16, 1, 0.3, 1) 120ms forwards;
+      }
+
+      .sparkle-burst {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+
+      .sparkle {
+        position: absolute;
+        left: 50%;
+        top: 34%;
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: rgba(255, 245, 255, 0.92);
+        box-shadow:
+          0 0 10px rgba(255, 255, 255, 0.2),
+          0 0 18px rgba(212, 188, 255, 0.16);
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(var(--angle)) translateY(0) scale(0.4);
+      }
+
+      .sparkle::before,
+      .sparkle::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: inherit;
+        border-radius: inherit;
+      }
+
+      .sparkle::before {
+        transform: scaleX(2.2) scaleY(0.5);
+      }
+
+      .sparkle::after {
+        transform: scaleX(0.5) scaleY(2.2);
+      }
+
+      .final.active .sparkle {
+        animation: sparkle-burst 900ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        animation-delay: calc(180ms + var(--delay));
+      }
+
+      .final-title {
+        position: relative;
+        display: inline-block;
+      }
+
+      .final-title::before,
+      .final-title::after {
+        content: "✦";
+        position: absolute;
+        top: -14px;
+        color: rgba(230, 217, 255, 0.62);
+        font-size: 0.82rem;
+        animation: twinkle 5.8s ease-in-out infinite;
+      }
+
+      .final-title::before {
+        left: -18px;
+      }
+
+      .final-title::after {
+        right: -16px;
+        animation-delay: 1.4s;
+      }
+
+      .response-step {
+        opacity: 0;
+        transform: translateY(8px);
+        transition:
+          opacity 420ms ease,
+          transform 420ms ease;
+      }
+
+      .response-step.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @keyframes drift-up {
+        from {
+          transform: translate3d(0, 0, 0);
+        }
+        to {
+          transform: translate3d(10px, -24px, 0);
+        }
+      }
+
+      @keyframes drift-down {
+        from {
+          transform: translate3d(0, -8px, 0);
+        }
+        to {
+          transform: translate3d(-12px, 16px, 0);
+        }
+      }
+
+      @keyframes twinkle {
+        0% {
+          opacity: 0.05;
+          transform: translate3d(0, 0, 0) scale(1);
+        }
+        50% {
+          opacity: 0.12;
+          transform: translate3d(4px, -3px, 0) scale(1.01);
+        }
+        100% {
+          opacity: 0.07;
+          transform: translate3d(-3px, 5px, 0) scale(0.995);
+        }
+      }
+
+      @keyframes twinkle-soft {
+        0%,
+        100% {
+          opacity: 0.04;
+          transform: translate3d(0, 0, 0);
+        }
+        45% {
+          opacity: 0.08;
+          transform: translate3d(-5px, 3px, 0);
+        }
+        75% {
+          opacity: 0.06;
+          transform: translate3d(4px, -4px, 0);
+        }
+      }
+
+      @keyframes star-drift {
+        0%,
+        100% {
+          transform: translate3d(0, 0, 0) scale(0.94);
+        }
+        50% {
+          transform: translate3d(var(--drift-x), var(--drift-y), 0) scale(1.06);
+        }
+      }
+
+      @keyframes star-twinkle {
+        0%,
+        100% {
+          opacity: 0.08;
+        }
+        45% {
+          opacity: 0.3;
+        }
+        70% {
+          opacity: 0.18;
+        }
+      }
+
+      @keyframes meteor-fall {
+        0% {
+          opacity: 0;
+          transform: translate3d(0, 0, 0) rotate(var(--angle)) scaleX(0.86);
+        }
+        12% {
+          opacity: 0.72;
+        }
+        72% {
+          opacity: 0.46;
+        }
+        100% {
+          opacity: 0;
+          transform: translate3d(var(--travel-x), var(--travel-y), 0) rotate(var(--angle)) scaleX(1.06);
+        }
+      }
+
+      @keyframes charm-float {
+        0%,
+        100% {
+          transform: translate3d(0, 0, 0);
+          opacity: 0.72;
+        }
+        50% {
+          transform: translate3d(0, -8px, 0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes orbit-drift {
+        0%,
+        100% {
+          transform: translate3d(0, 0, 0);
+          opacity: 0.64;
+        }
+        50% {
+          transform: translate3d(0, -8px, 0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes stamp-in {
+        0% {
+          opacity: 0;
+          transform: rotate(-14deg) scale(1.25);
+          filter: blur(1px);
+        }
+        60% {
+          opacity: 0.92;
+          transform: rotate(-8deg) scale(0.97);
+          filter: blur(0);
+        }
+        100% {
+          opacity: 1;
+          transform: rotate(-10deg) scale(1);
+          filter: blur(0);
+        }
+      }
+
+      @keyframes hold-sheen {
+        from {
+          transform: translateX(-36%);
+        }
+        to {
+          transform: translateX(40%);
+        }
+      }
+
+      @keyframes sparkle-burst {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -50%) rotate(var(--angle)) translateY(0) scale(0.35);
+        }
+        18% {
+          opacity: 0.95;
+        }
+        100% {
+          opacity: 0;
+          transform:
+            translate(-50%, -50%)
+            rotate(var(--angle))
+            translateY(var(--travel))
+            scale(1);
+        }
+      }
+
+      @media (max-width: 480px) {
+        .app {
+          padding: 18px;
+        }
+
+        .shell {
+          width: min(100%, 340px);
+          min-height: 380px;
+        }
+
+        .stage::before {
+          width: min(92vw, 360px);
+          height: 320px;
+          top: 8%;
+          opacity: 0.98;
+        }
+
+        .stage::after {
+          width: min(88vw, 318px);
+          height: 230px;
+          top: 12%;
+        }
+
+        .dossier-grid {
+          inset: 13% 2% 20%;
+        }
+
+        .dossier-corners {
+          inset: 12% 3% 20%;
+        }
+
+        .dossier-seal {
+          width: 208px;
+          height: 208px;
+          top: 26%;
+        }
+
+        .panel {
+          padding: 0 6px;
+        }
+
+        .button-row {
+          gap: 10px;
+        }
+
+        button {
+          min-width: 144px;
+          min-height: 44px;
+        }
+
+        .button-row.triple {
+          width: min(100%, 220px);
+          padding-inline: 10px;
+        }
+
+        .button-row.triple button:nth-child(2) {
+          min-width: 160px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation: none !important;
+          transition-duration: 1ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <div class="stars" aria-hidden="true">
+        <div class="meteors" id="meteors"></div>
+        <div class="starfield" id="starfield"></div>
+        <div class="stars__twinkle"></div>
+      </div>
+
+      <section class="shell" aria-live="polite">
+        <div class="stage">
+          <div class="dossier" aria-hidden="true">
+            <div class="dossier-grid"></div>
+            <div class="dossier-corners">
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <div class="dossier-seal">
+              <span class="seal-label">alien file</span>
+            </div>
+          </div>
+          <section class="panel active" id="screen-1" data-screen>
+            <div class="panel-ornament intro-sparkles" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <p class="eyebrow">one last thing</p>
+            <p class="message">before this becomes legally binding...</p>
+            <p class="message-soft">there's one tiny <span class="accent-word">alien-related clause</span> left.</p>
+            <div class="button-row">
+              <button type="button" data-next="screen-2">ok, what is it</button>
+            </div>
+          </section>
+
+          <section class="panel" id="screen-2" data-screen>
+            <p class="message">your <span class="accent-word">alien identity</span> is safe with me</p>
+            <div class="button-row">
+              <button type="button" id="to-screen-3">good</button>
+            </div>
+          </section>
+
+          <section class="panel" id="screen-3" data-screen>
+            <div class="panel-ornament choice-orbit" aria-hidden="true">
+              <span></span>
+              <span></span>
+            </div>
+            <p class="message message-tight">so... we're agreeing I keep your <span class="accent-word">alien secret</span>?</p>
+            <div class="button-row triple">
+              <button type="button" id="trust-yes">yes</button>
+              <button type="button" id="trust-think">I think so</button>
+              <button type="button" id="trust-maybe">okay maybe</button>
+            </div>
+          </section>
+
+          <section class="panel response" id="response-screen" data-screen>
+            <p class="response-copy response-step" id="response-line-1"></p>
+            <p class="response-copy response-step" id="response-line-2"></p>
+            <div class="response-actions hidden" id="response-actions">
+              <button type="button" class="hold-button" id="hold-confirm">hold to pinkie promise</button>
+            </div>
+          </section>
+
+          <section class="panel final" id="final-screen" data-screen>
+            <div class="sparkle-burst" aria-hidden="true">
+              <span class="sparkle" style="--angle: -72deg; --travel: -42px; --delay: 0ms"></span>
+              <span class="sparkle" style="--angle: -28deg; --travel: -34px; --delay: 90ms"></span>
+              <span class="sparkle" style="--angle: 18deg; --travel: -32px; --delay: 140ms"></span>
+              <span class="sparkle" style="--angle: 58deg; --travel: -44px; --delay: 60ms"></span>
+              <span class="sparkle" style="--angle: 108deg; --travel: -26px; --delay: 120ms"></span>
+            </div>
+            <p class="final-stamp">classified</p>
+            <p class="final-title">consider it <span class="accent-word">classified</span></p>
+            <p class="support">made specifically for you, Ana. obviously haha)</p>
+            <p class="footnote">your secret is safe with me</p>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const screens = [...document.querySelectorAll("[data-screen]")];
+      const nextButton = document.querySelector("[data-next='screen-2']");
+      const screenThreeButton = document.getElementById("to-screen-3");
+      const trustYesButton = document.getElementById("trust-yes");
+      const trustThinkButton = document.getElementById("trust-think");
+      const trustMaybeButton = document.getElementById("trust-maybe");
+      const responseLineOne = document.getElementById("response-line-1");
+      const responseLineTwo = document.getElementById("response-line-2");
+      const responseActions = document.getElementById("response-actions");
+      const holdConfirmButton = document.getElementById("hold-confirm");
+      const meteors = document.getElementById("meteors");
+      const starfield = document.getElementById("starfield");
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+      const holdDuration = 1200;
+      let flowToken = 0;
+      let meteorTimer = null;
+      let holdFrame = null;
+      let holdActive = false;
+      let holdStartedAt = 0;
+
+      const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
+
+      function createStars() {
+        const starCount = window.innerWidth <= 480 ? 34 : 46;
+        const fragment = document.createDocumentFragment();
+        starfield.innerHTML = "";
+
+        for (let index = 0; index < starCount; index += 1) {
+          const star = document.createElement("span");
+          star.className = "star";
+          star.style.setProperty("--x", `${Math.random() * 100}%`);
+          star.style.setProperty("--y", `${Math.random() * 100}%`);
+          star.style.setProperty("--size", `${Math.random() * 1.8 + 1.2}px`);
+          star.style.setProperty("--duration", `${Math.random() * 9 + 8}s`);
+          star.style.setProperty("--twinkle-duration", `${Math.random() * 3.2 + 2.8}s`);
+          star.style.setProperty("--delay", `${Math.random() * -12}s`);
+          star.style.setProperty("--twinkle-delay", `${Math.random() * -8}s`);
+          star.style.setProperty("--drift-x", `${(Math.random() - 0.5) * 26}px`);
+          star.style.setProperty("--drift-y", `${(Math.random() - 0.5) * 34}px`);
+          fragment.appendChild(star);
+        }
+
+        starfield.appendChild(fragment);
+      }
+
+      function spawnMeteor() {
+        if (reduceMotion.matches) return;
+
+        const meteor = document.createElement("span");
+        meteor.className = "meteor";
+        meteor.style.setProperty("--x", `${Math.random() * 30 + 6}%`);
+        meteor.style.setProperty("--y", `${Math.random() * 14 + 6}%`);
+        meteor.style.setProperty("--length", `${Math.random() * 34 + 86}px`);
+        meteor.style.setProperty("--angle", `${Math.random() * 8 + 18}deg`);
+        meteor.style.setProperty("--travel-x", `${Math.random() * 130 + 140}px`);
+        meteor.style.setProperty("--travel-y", `${Math.random() * 44 + 32}px`);
+        meteor.style.setProperty("--meteor-duration", `${Math.random() * 0.4 + 1.15}s`);
+        meteors.appendChild(meteor);
+
+        meteor.addEventListener("animationend", () => {
+          meteor.remove();
+        });
+      }
+
+      function queueMeteor() {
+        if (meteorTimer) {
+          window.clearTimeout(meteorTimer);
+        }
+
+        if (reduceMotion.matches) return;
+
+        const nextDelay = Math.random() * 9000 + 7000;
+        meteorTimer = window.setTimeout(() => {
+          spawnMeteor();
+          queueMeteor();
+        }, nextDelay);
+      }
+
+      function showScreen(screenId) {
+        for (const screen of screens) {
+          const isActive = screen.id === screenId;
+          screen.classList.toggle("active", isActive);
+          screen.setAttribute("aria-hidden", String(!isActive));
+        }
+      }
+
+      function resetResponse() {
+        responseLineOne.textContent = "";
+        responseLineTwo.textContent = "";
+        responseLineOne.classList.remove("visible");
+        responseLineTwo.classList.remove("visible");
+      }
+
+      function resetHoldState() {
+        holdActive = false;
+        holdStartedAt = 0;
+        if (holdFrame) {
+          window.cancelAnimationFrame(holdFrame);
+          holdFrame = null;
+        }
+        responseActions.classList.add("hidden");
+        holdConfirmButton.classList.remove("holding", "complete");
+        holdConfirmButton.style.setProperty("--hold-progress", "0%");
+      }
+
+      function showResponse(lineOne, lineTwo = "") {
+        resetHoldState();
+        resetResponse();
+        showScreen("response-screen");
+        responseLineOne.textContent = lineOne;
+        responseLineOne.classList.add("visible");
+
+        if (lineTwo) {
+          responseLineTwo.textContent = lineTwo;
+          responseLineTwo.classList.add("visible");
+        }
+      }
+
+      async function runYesFlow() {
+        const token = ++flowToken;
+        resetHoldState();
+        resetResponse();
+        showScreen("response-screen");
+        responseLineOne.textContent = "oh, you actually do";
+        responseLineOne.classList.add("visible");
+
+        await wait(500);
+        if (token !== flowToken) return;
+        responseLineTwo.textContent = "hold to pinkie promise";
+        responseLineTwo.classList.add("visible");
+        responseActions.classList.remove("hidden");
+      }
+
+      async function finishHoldFlow(token) {
+        resetHoldState();
+        resetResponse();
+        responseLineOne.textContent = "okay, good";
+        responseLineOne.classList.add("visible");
+
+        await wait(620);
+        if (token !== flowToken) return;
+        responseLineTwo.textContent = "promise sealed";
+        responseLineTwo.classList.add("visible");
+
+        await wait(950);
+        if (token !== flowToken) return;
+        showScreen("final-screen");
+      }
+
+      async function runShortFlow(copy) {
+        const token = ++flowToken;
+        showResponse(copy);
+        await wait(900);
+        if (token !== flowToken) return;
+        showScreen("final-screen");
+      }
+
+      function updateHoldProgress(now) {
+        if (!holdActive) return;
+
+        const progress = Math.min((now - holdStartedAt) / holdDuration, 1);
+        holdConfirmButton.style.setProperty("--hold-progress", `${progress * 100}%`);
+
+        if (progress >= 1) {
+          holdActive = false;
+          holdConfirmButton.classList.remove("holding");
+          holdConfirmButton.classList.add("complete");
+          finishHoldFlow(flowToken);
+          return;
+        }
+
+        holdFrame = window.requestAnimationFrame(updateHoldProgress);
+      }
+
+      function startHold() {
+        if (holdActive || responseActions.classList.contains("hidden")) return;
+        holdActive = true;
+        holdConfirmButton.classList.add("holding");
+        holdConfirmButton.classList.remove("complete");
+        holdStartedAt = performance.now();
+        holdFrame = window.requestAnimationFrame(updateHoldProgress);
+      }
+
+      function stopHold() {
+        if (!holdActive) return;
+        holdActive = false;
+        if (holdFrame) {
+          window.cancelAnimationFrame(holdFrame);
+          holdFrame = null;
+        }
+        holdConfirmButton.classList.remove("holding");
+        holdConfirmButton.style.setProperty("--hold-progress", "0%");
+      }
+
+      nextButton.addEventListener("click", () => showScreen("screen-2"));
+      screenThreeButton.addEventListener("click", () => showScreen("screen-3"));
+      trustYesButton.addEventListener("click", runYesFlow);
+      trustThinkButton.addEventListener("click", () => runShortFlow("okay, that works for me"));
+      trustMaybeButton.addEventListener("click", () => runShortFlow("fair. I'll keep earning it"));
+      holdConfirmButton.addEventListener("pointerdown", (event) => {
+        event.preventDefault();
+        startHold();
+      });
+      window.addEventListener("pointerup", stopHold);
+      window.addEventListener("pointercancel", stopHold);
+      holdConfirmButton.addEventListener("pointerleave", stopHold);
+
+      createStars();
+      queueMeteor();
+      window.addEventListener("resize", createStars);
+    </script>
+  </body>
+</html>
